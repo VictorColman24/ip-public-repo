@@ -1,24 +1,45 @@
-{% extends 'header.html' %} {% block content %}
-<main>
-    <h1 class="text-center">Galería de Imágenes de la NASA</h1>
-    <div class="d-flex justify-content-center" style="margin-bottom: 1%">
-        <!-- Buscador del sitio -->
-        <form class="d-flex" action="{% url 'buscar' %}" method="POST">
+{% extends 'header.html' %}
+{% block content %}
+<main style="padding-bottom: 60px;">
+    <h1 class="text-center custom-title">Galería de Imágenes de la NASA</h1>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f0f0f0; /* Color de fondo de la página */
+        }
+        .custom-title {
+            font-weight: 700;
+            color: #4a90e2; /* Color del título */
+            text-align: center;
+            margin-top: 20px; /* Espacio superior */
+        }
+    </style>
+    <div class="d-flex justify-content-center mb-3">
+        <!-- Formulario de búsqueda -->
+        <form class="d-flex me-3" action="{% url 'buscar' %}" method="GET">
             {% csrf_token %}
-            <input class="form-control me-2" type="search" name="query" placeholder="Escribí una palabra" aria-label="Search">
-            <button class="btn btn-outline-success" type="submit">Buscar</button>
+            <input class="form-control me-1" type="search" name="query" placeholder="Escribí una palabra" aria-label="Search" value="{{ query }}">
+            <button class="btn btn-sm btn-primary" type="submit">Buscar</button>
+        </form>
+    
+        <!-- Selector de cantidad de imágenes por página -->
+        <form class="d-flex me-3" action="{% if request.resolver_match.url_name == 'buscar' %}{% url 'buscar' %}{% else %}{% url 'home' %}{% endif %}" method="GET">
+            <label for="per_page_custom" class="me-2">Imágenes por página:</label>
+            <input type="number" class="form-control-sm me-1" name="per_page" id="per_page_custom" value="{{ images_per_page }}" min="1" max="100">
+            <button type="submit" class="btn btn-sm btn-primary">Actualizar</button>
+            <input type="hidden" name="query" value="{{ query }}">
         </form>
     </div>
 
-
     <div class="row row-cols-1 row-cols-md-3 g-4">
-        {% for imagen in images %}
+        {% for imagen in page_obj %}
         <div class="col">
-            <div class="card">
-                <img src="{{ imagen.image_url}}" class="card-img-top" alt="imagen">
+            <div class="card small-card">
+                <img src="{{ imagen.image_url }}" class="card-img-top" alt="imagen">
                 <div class="card-body">
-                    <h5 class="card-title">{{ imagen.title}}</h5>
-                    <p class="card-text">{{ imagen.description}}</p>
+                    <h5 class="card-title">{{ imagen.title }}</h5>
+                    <p class="card-text">{{ imagen.description }}</p>
                 </div>
                 {% if request.user.is_authenticated %}
                 <div class="card-footer text-center">
@@ -27,16 +48,63 @@
                         <input type="hidden" name="title" value="{{ imagen.title }}">
                         <input type="hidden" name="description" value="{{ imagen.description }}">
                         <input type="hidden" name="image_url" value="{{ imagen.image_url }}">
-                        <input type="hidden" name="date" value="{{ imagen.date }}"> {% if imagen in favourite_list %}
-                        <button type="submit" class="btn btn-primary btn-sm float-left" style="color:white" disabled>✔️ Ya está añadida a favoritos</button> {% else %}
-                        <button type="submit" class="btn btn-primary btn-sm float-left" style="color:white">❤️ Añadir a favoritos</button> {% endif %}
-
+                        <input type="hidden" name="date" value="{{ imagen.date }}">
+                        <button type="submit" class="btn btn-primary btn-sm float-left" style="color:white" {% if imagen in favourite_list %}disabled{% endif %}>
+                            {% if imagen in favourite_list %}✔️ Ya está añadida a favoritos{% else %}❤️ Añadir a favoritos{% endif %}
+                        </button>
                     </form>
                 </div>
                 {% endif %}
             </div>
         </div>
         {% endfor %}
+    </div>
+
+    <!-- Controles de paginación -->
+    <div class="d-flex justify-content-center mt-3">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?query={{ query }}&per_page={{ images_per_page }}&page=1" aria-label="First">&laquo;&laquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?query={{ query }}&per_page={{ images_per_page }}&page={{ page_obj.previous_page_number }}" aria-label="Previous">&laquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="First">&laquo;&laquo;</a>
+                </li>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Previous">&laquo;</a>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                {% elif num > page_obj.number|add:'-5' and num < page_obj.number|add:'5' %}
+                <li class="page-item"><a class="page-link" href="?query={{ query }}&per_page={{ images_per_page }}&page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?query={{ query }}&per_page={{ images_per_page }}&page={{ page_obj.next_page_number }}" aria-label="Next">&raquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?query={{ query }}&per_page={{ images_per_page }}&page={{ page_obj.paginator.num_pages }}" aria-label="Last">&raquo;&raquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Next">&raquo;</a>
+                </li>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" aria-label="Last">&raquo;&raquo;</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
     </div>
 </main>
 {% endblock %}
