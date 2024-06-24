@@ -1,8 +1,15 @@
 {% extends 'header.html' %} {% block content %} 
-{% if request.user.is_authenticated %}
-<h2 class="text-center">Bienvenido Comisión 10</h2>
-<!--SE AGREGAN LIKS Y STYLE PARA MEJORAR LA APARIENCIA DE LA APP TAMBIEN UN LOGO DE LA NASA-->
+<h2 class="text-center">
+    {% if request.user.is_authenticated %}
+        Bienvenido {{ user.username | upper }}
+    {% else %}
+        Bienvenido!
+    {% endif %}
+</h2>
+
+<!-- SE AGREGAN LIKS Y STYLE PARA MEJORAR LA APARIENCIA DE LA APP TAMBIEN UN LOGO DE LA NASA -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
     body {
         font-family: 'Poppins', sans-serif;
@@ -21,35 +28,12 @@
         height: auto; /* Mantener la proporción de la imagen */
         margin-bottom: 20px; /* Espacio inferior */
     }
+</style>
 
-</style>
-<!--SE AGREGAN  lmagen de la NASA-->
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/1200px-NASA_logo.svg.png"alt="Logo NASA" class="nasa-logo">
-{% else %}
-<h2 class="text-center">Bienvenido!</h2>
-<style>
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: #f0f0f0; /* Color de fondo de la página */
-    }
-    .custom-title {
-        font-weight: 700;
-        color: #000000; /* Color del título */
-        text-align: center;
-        margin-top: 20px; /* Espacio superior */
-    }
-<!--Se agrega modelo para imagen de la NASA-->   
-.nasa-logo {
-    display: block;
-    margin: 0 auto; /* Centrar horizontalmente */
-    max-width: 20%; /* Ajustar al ancho máximo disponible */
-    height: auto; /* Mantener la proporción de la imagen */
-    margin-bottom: 20px; /* Espacio inferior */
-}
-</style>
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/1200px-NASA_logo.svg.png"alt="Logo NASA" class="nasa-logo">
-{% endif %}
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/1200px-NASA_logo.svg.png" alt="Logo NASA" class="nasa-logo">
+
 <p class="text-center">
     Para ver las imágenes hacer clic en <a href="{% url 'home' %}">este link.</a>
 </p>
+
 {% endblock %}
