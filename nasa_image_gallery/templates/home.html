@@ -26,7 +26,7 @@
         <!-- Selector de cantidad de imágenes por página -->
         <form class="d-flex me-3" action="{% if request.resolver_match.url_name == 'buscar' %}{% url 'buscar' %}{% else %}{% url 'home' %}{% endif %}" method="GET">
             <label for="per_page_custom" class="me-2">Imágenes por página:</label>
-            <input type="number" class="form-control-sm me-1" name="per_page" id="per_page_custom" value="{{ images_per_page }}" min="1" max="100">
+            <input type="number" cla ss="form-control-sm me-1" name="per_page" id="per_page_custom" value="{{ images_per_page }}" min="1" max="100">
             <button type="submit" class="btn btn-sm btn-primary">Actualizar</button>
             <input type="hidden" name="query" value="{{ query }}">
         </form>
@@ -82,9 +82,9 @@
 
                 {% for num in page_obj.paginator.page_range %}
                 {% if page_obj.number == num %}
-                <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
-                {% elif num > page_obj.number|add:'-5' and num < page_obj.number|add:'5' %}
-                <li class="page-item"><a class="page-link" href="?query={{ query }}&per_page={{ images_per_page }}&page={{ num }}">{{ num }}</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                {% else %}
+                    <li class="page-item"><a class="page-link" href="?query={{ query }}&per_page={{ images_per_page }}&page={{ num }}">{{ num }}</a></li>
                 {% endif %}
                 {% endfor %}
 

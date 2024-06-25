@@ -28,6 +28,7 @@ def home(request):
     images_per_page = int(request.GET.get('per_page', 5))  # Default 5 imágenes por página
     paginator = Paginator(images, images_per_page)
     page_number = request.GET.get('page')
+
     try:
         page_obj = paginator.page(page_number)
     except PageNotAnInteger:
